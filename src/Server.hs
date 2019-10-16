@@ -1,6 +1,8 @@
 -- | rotom启动服务
 {-# LANGUAGE DataKinds #-}
-module Server (runServer) where
+module Server ( runServer
+              , api
+              ) where
 
 import Servant
 import Network.Wai.Handler.Warp (run)
