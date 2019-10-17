@@ -7,6 +7,8 @@ module Server ( runServer
 import Servant
 import Network.Wai.Handler.Warp (run)
 
+import Rotom.Middleware (appMiddleware)
+
 type RootAPI = Get '[PlainText] String
 
 rootAPI :: Server RootAPI
@@ -21,4 +23,4 @@ buildApp :: Application
 buildApp = serve api rootAPI
 
 runServer :: IO ()
-runServer = run 8000 buildApp
+runServer = run 8000 $ appMiddleware buildApp
