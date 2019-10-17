@@ -5,23 +5,14 @@ module Server ( runServer
               ) where
 
 import Rotom.App
+import Rotom.Api (API, api, apiRoute)
 import Rotom.Middleware (appMiddleware)
 
 import Servant
 import Network.Wai.Handler.Warp (run)
 
-type RootAPI = Get '[PlainText] String
-
-rootAPI :: ServerT RootAPI XGApp
-rootAPI = return "hello rotom"
-
-type API = RootAPI
-
-api :: Proxy API
-api = Proxy
-
 buildRoute :: Server API
-buildRoute = hoistServer api (appToHandler 10) rootAPI
+buildRoute = hoistServer api (appToHandler 10) apiRoute
 
 buildApp :: Application
 buildApp = serve api buildRoute
