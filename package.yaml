@@ -29,8 +29,10 @@ dependencies:
 - time
 - transformers
 - data-default
+- aeson
 - yaml
 - directory
+- postgresql-simple
 
 library:
   source-dirs: src
