@@ -29,6 +29,8 @@ dependencies:
 - time
 - transformers
 - data-default
+- yaml
+- directory
 
 library:
   source-dirs: src
