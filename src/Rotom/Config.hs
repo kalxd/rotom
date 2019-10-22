@@ -3,7 +3,7 @@
 -- | rotom配置文件。
 --
 -- 动态读取配置。
-module Rotom.Config ( XGAppConfig
+module Rotom.Config ( XGAppConfig(..)
                     , readConfig
                     ) where
 

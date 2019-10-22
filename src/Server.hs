@@ -1,5 +1,5 @@
 -- | rotom启动服务
-{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE RecordWildCards #-}
 module Server ( runServer
               , api
               ) where
@@ -7,15 +7,20 @@ module Server ( runServer
 import Rotom.App
 import Rotom.Api (API, api, apiRoute)
 import Rotom.Middleware (appMiddleware)
+import Rotom.Config (XGAppConfig(..), readConfig)
 
 import Servant
 import Network.Wai.Handler.Warp (run)
+import qualified Database.PostgreSQL.Simple as PG
 
-buildRoute :: Server API
-buildRoute = hoistServer api (appToHandler 10) apiRoute
+buildRoute :: PG.Connection -> Server API
+buildRoute conn = hoistServer api (appToHandler conn) apiRoute
 
-buildApp :: Application
-buildApp = serve api buildRoute
+buildApp :: PG.Connection -> Application
+buildApp = serve api . buildRoute
 
 runServer :: IO ()
-runServer = run 8000 $ appMiddleware buildApp
+runServer = do
+    AppConfig{..} <- readConfig
+    conn <- PG.connect appDB
+    run 8000 $ appMiddleware $ buildApp conn
