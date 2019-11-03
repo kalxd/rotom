@@ -24,7 +24,7 @@ instance Default XGAppConfig where
     def = AppConfig {..}
         where appHost = "http://localhost"
               appPort = 3000
-              appDB = PG.defaultConnectInfo { PG.connectDatabase = "rotom " }
+              appDB = PG.defaultConnectInfo { PG.connectDatabase = "rotom" }
 
 instance FromJSON XGAppConfig where
     parseJSON (Object o) = AppConfig

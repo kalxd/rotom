@@ -3,6 +3,7 @@
 -- 相当于总路由入口和定义。
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE TypeOperators #-}
 module Rotom.Api ( API
                  , api
                  , apiRoute
@@ -10,16 +11,9 @@ module Rotom.Api ( API
 
 import Servant
 import Rotom.App
+import Rotom.Type.User (XGUser)
 
 import qualified Database.PostgreSQL.Simple as PG
-
-type API = RootAPI
-
-api :: Proxy API
-api = Proxy
-
-apiRoute :: ServerT API XGApp
-apiRoute = rootAPI
 
 type RootAPI = Get '[PlainText] String
 
@@ -30,3 +24,19 @@ type RunAPI = Get '[JSON] Int
 
 runAPI :: XGApp [PG.Only Int]
 runAPI = query_ "select 1"
+
+type UserAPI = "user" :> Capture "id" Int :> Get '[JSON] XGUser
+
+userAPI :: Int -> XGApp XGUser
+userAPI id = do
+    [user] <- query "select id, mkzi from yshu where id = ?" [id] :: XGApp [XGUser]
+    pure $ user
+
+-- 所有路由汇总
+type API = RootAPI :<|> UserAPI
+
+apiRoute :: ServerT API XGApp
+apiRoute = rootAPI :<|> userAPI
+
+api :: Proxy API
+api = Proxy

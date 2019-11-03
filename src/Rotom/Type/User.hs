@@ -1,11 +1,14 @@
 -- | 用户
-
+{-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
 module Rotom.Type.User where
 
 import qualified Data.Text as T
-import Database.PostgreSQL.Simple.FromRow ( FromRow(..)
-                                          , field
-                                          )
+import Data.Aeson ( ToJSON(..)
+                  , (.=)
+                  , object
+                  )
+import Database.PostgreSQL.Simple.FromRow (FromRow(..), field)
 
 data XGUser = User { userId :: Int
                    , userName :: T.Text
@@ -13,3 +16,8 @@ data XGUser = User { userId :: Int
 
 instance FromRow XGUser where
     fromRow = User <$> field <*> field
+
+instance ToJSON XGUser where
+    toJSON User{..} = object [ "id" .= userId
+                             , "name" .= userName
+                             ]
