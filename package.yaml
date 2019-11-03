@@ -26,6 +26,7 @@ dependencies:
 - warp
 - servant-server
 - text
+- bytestring
 - time
 - transformers
 - data-default

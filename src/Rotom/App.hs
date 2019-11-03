@@ -3,15 +3,18 @@
 module Rotom.App where
 
 import Control.Monad.Trans.Reader
+import Control.Monad.Trans.Except
 import Control.Monad.IO.Class (liftIO)
 
-import Servant (Handler)
+import Servant (Handler(..))
 import qualified Database.PostgreSQL.Simple as PG
 
-type XGApp = ReaderT PG.Connection Handler
+import Rotom.Type.Error (XGError, transToServantError)
+
+type XGApp = ReaderT PG.Connection (ExceptT XGError IO)
 
 appToHandler :: PG.Connection -> XGApp a -> Handler a
-appToHandler = flip runReaderT
+appToHandler conn = Handler . withExceptT transToServantError . flip runReaderT conn
 
 query :: (PG.ToRow q, PG.FromRow r) => PG.Query -> q -> XGApp [r]
 query sql q = do
