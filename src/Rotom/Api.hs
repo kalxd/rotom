@@ -23,13 +23,13 @@ rootAPI = pure "你好啊！"
 type RunAPI = Get '[JSON] Int
 
 runAPI :: XGApp [PG.Only Int]
-runAPI = query_ "select 1"
+runAPI = query' "select 1"
 
-type UserAPI = "user" :> Capture "id" Int :> Get '[JSON] XGUser
+type UserAPI = "user" :> Capture "id" Int :> Get '[JSON] (Maybe XGUser)
 
-userAPI :: Int -> XGApp XGUser
+userAPI :: Int -> XGApp (Maybe XGUser)
 userAPI id = do
-    [user] <- query "select id, mkzi from yshu where id = ?" [id] :: XGApp [XGUser]
+    user <- queryOne "select id, mkzi from yshu where id = ?" [id]
     pure $ user
 
 -- 所有路由汇总
