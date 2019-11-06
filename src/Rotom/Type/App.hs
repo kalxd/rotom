@@ -1,5 +1,4 @@
 -- | Servant整个服务类型定义
-
 module Rotom.Type.App ( module Control.Monad.Trans.Reader
                       , module Rotom.Type.App
                       ) where
