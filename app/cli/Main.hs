@@ -4,9 +4,10 @@ module Main (main) where
 import Prelude hiding (putStrLn)
 
 import Data.Text.IO (putStrLn)
-import Servant (layout)
+import Servant (layoutWithContext)
 
 import Rotom.Api (api)
+import Rotom.Type.Auth (authContext)
 
 main :: IO ()
-main = putStrLn $ layout api
+main = putStrLn $ layoutWithContext api authContext
