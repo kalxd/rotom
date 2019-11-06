@@ -4,13 +4,13 @@ module Server ( runServer
               , api
               ) where
 
-import Rotom.Type
-import Rotom.Type.Config (XGAppConfig(..), readConfig)
+import Servant
 
+import Rotom.Type.Config (XGAppConfig(..), readConfig)
+import Rotom.Type.App (appToHandler)
 import Rotom.Api (API, api, apiRoute)
 import Rotom.Middleware (appMiddleware)
 
-import Servant
 import Network.Wai.Handler.Warp (run)
 import qualified Database.PostgreSQL.Simple as PG
 

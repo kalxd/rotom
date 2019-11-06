@@ -1,24 +1,18 @@
 -- | 全局应用，大部分操作都应用于此。
 -- | 写业务离不它。
 
-module Rotom.Type where
+module Rotom.Type ( module Rotom.Type
+                  , Rotom.Type.App.XGApp
+                  ) where
 
-import Control.Monad.Trans.Reader
-import Control.Monad.Trans.Except
-import Control.Monad.Trans.Class (lift)
+import Rotom.Type.App
+import Rotom.Type.Error (XGError, transToServantError)
+
 import Control.Monad ((>=>))
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (listToMaybe, isNothing)
 
-import Servant (Handler(..))
 import qualified Database.PostgreSQL.Simple as PG
-
-import Rotom.Type.Error (XGError, transToServantError)
-
-type XGApp = ReaderT PG.Connection (ExceptT XGError IO)
-
-appToHandler :: PG.Connection -> XGApp a -> Handler a
-appToHandler conn = Handler . withExceptT transToServantError . flip runReaderT conn
 
 -- | 数据库查询。
 query :: (PG.ToRow q, PG.FromRow r) => PG.Query -> q -> XGApp [r]
@@ -45,7 +39,7 @@ queryJust :: (PG.ToRow q, PG.FromRow r) => XGError -> PG.Query -> q -> XGApp r
 queryJust e sql q = do
     r <- queryOne sql q
     case r of
-        Nothing -> lift $ throwE e
+        Nothing -> throw e
         Just r' -> pure r'
 
 -- | 强制获取一个值，为空值就抛出错误。
@@ -53,5 +47,5 @@ queryJust' :: PG.FromRow r => XGError -> PG.Query -> XGApp r
 queryJust' e sql = do
     r <- queryOne' sql
     case r of
-        Nothing -> lift $ throwE e
+        Nothing -> throw e
         Just r' -> pure r'
