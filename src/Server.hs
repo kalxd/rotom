@@ -4,10 +4,11 @@ module Server ( runServer
               , api
               ) where
 
-import Rotom.App
+import Rotom.Type
+import Rotom.Type.Config (XGAppConfig(..), readConfig)
+
 import Rotom.Api (API, api, apiRoute)
 import Rotom.Middleware (appMiddleware)
-import Rotom.Type.Config (XGAppConfig(..), readConfig)
 
 import Servant
 import Network.Wai.Handler.Warp (run)

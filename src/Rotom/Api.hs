@@ -10,7 +10,7 @@ module Rotom.Api ( API
                  ) where
 
 import Servant
-import Rotom.App
+import Rotom.Type
 import Rotom.Type.User (XGUser)
 
 import qualified Database.PostgreSQL.Simple as PG

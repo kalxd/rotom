@@ -1,6 +1,7 @@
 -- | 全局应用，大部分操作都应用于此。
+-- | 写业务离不它。
 
-module Rotom.App where
+module Rotom.Type where
 
 import Control.Monad.Trans.Reader
 import Control.Monad.Trans.Except
@@ -8,7 +9,6 @@ import Control.Monad.Trans.Class (lift)
 import Control.Monad ((>=>))
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (listToMaybe, isNothing)
-
 
 import Servant (Handler(..))
 import qualified Database.PostgreSQL.Simple as PG
