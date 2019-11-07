@@ -6,9 +6,9 @@ module Server ( runServer
 
 import Servant
 
-import Rotom.Type.Config (XGAppConfig(..), readConfig)
+import Rotom.Type
 import Rotom.Type.App (appToHandler)
-import Rotom.Type.Auth (XGContextType, authContext)
+import Rotom.Auth (XGContextType, authContext)
 import Rotom.Api (API, api, apiRoute)
 import Rotom.Middleware (appMiddleware)
 
@@ -22,6 +22,5 @@ buildApp conn = serveWithContext api authContext serverApi
 
 runServer :: IO ()
 runServer = do
-    AppConfig{..} <- readConfig
-    conn <- PG.connect appDB
+    conn <- createConn
     run 8000 $ appMiddleware $ buildApp conn

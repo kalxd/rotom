@@ -10,9 +10,9 @@ module Rotom.Api ( API
                  ) where
 
 import Servant
+import Rotom.Auth (RequireAuth)
 import Rotom.Type
 import Rotom.Type.User (XGUser)
-import Rotom.Type.Auth (MaybeAuth)
 
 import qualified Database.PostgreSQL.Simple as PG
 
@@ -26,9 +26,9 @@ type RunAPI = Get '[JSON] Int
 runAPI :: XGApp [PG.Only Int]
 runAPI = query' "select 1"
 
-type UserAPI = "user" :> Capture "id" Int :> MaybeAuth :> Get '[JSON] (Maybe XGUser)
+type UserAPI = "user" :> Capture "id" Int :> RequireAuth :> Get '[JSON] XGUser
 
-userAPI :: Int -> Maybe XGUser -> XGApp (Maybe XGUser)
+userAPI :: Int -> XGUser -> XGApp XGUser
 userAPI = const pure
 
 -- 所有路由汇总
