@@ -16,9 +16,10 @@ import Network.Wai.Handler.Warp (run)
 import qualified Database.PostgreSQL.Simple as PG
 
 buildApp :: PG.Connection -> Application
-buildApp conn = serveWithContext api authContext serverApi
+buildApp conn = serveWithContext api context serverApi
     where serverApi = hoistServerWithContext api (Proxy :: Proxy XGContextType) trans apiRoute
           trans = appToHandler conn
+          context = authContext conn
 
 runServer :: IO ()
 runServer = do

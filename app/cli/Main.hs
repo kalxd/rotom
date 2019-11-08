@@ -7,7 +7,7 @@ import Data.Text.IO (putStrLn)
 import Servant (layoutWithContext)
 
 import Rotom.Api (api)
-import Rotom.Auth (authContext)
+import Rotom.Auth (emptyContext)
 
 main :: IO ()
-main = putStrLn $ layoutWithContext api authContext
+main = putStrLn $ layoutWithContext api emptyContext

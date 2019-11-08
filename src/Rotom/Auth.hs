@@ -6,6 +6,7 @@ module Rotom.Auth ( XGContextType
                   , MaybeAuth
                   , RequireAuth
                   , authContext
+                  , emptyContext
                   ) where
 
 import Servant
@@ -14,10 +15,8 @@ import Network.Wai (Request, requestHeaders)
 import qualified Database.PostgreSQL.Simple as PG
 
 import qualified Data.ByteString as BS
-import Data.ByteString.Char8 (unpack)
 import Data.List (find)
 import Data.Maybe (listToMaybe, maybe)
-import Control.Monad.IO.Class (liftIO)
 import Control.Monad.Trans.Reader (runReaderT)
 
 import Rotom.Type
@@ -48,14 +47,22 @@ findUser req = do
         Nothing -> pure Nothing
         Just ver' -> queryOne "select id, mkzi from yshu where id = ?" [ver']
 
-requireHandler :: XGAuthHandler XGUser
-requireHandler = mkAuthHandler $ \req -> do
-    conn <- liftIO createConn
+requireHandler :: PG.Connection -> XGAuthHandler XGUser
+requireHandler conn = mkAuthHandler $ \req -> do
     user <- runReaderT (findUser req) conn
     maybe (throwError err403{ errBody = "你他娘谁啊！" }) pure user
 
-maybeHandler :: XGAuthHandler (Maybe XGUser)
-maybeHandler = mkAuthHandler $ \req -> liftIO createConn >>= runReaderT (findUser req)
+maybeHandler :: PG.Connection -> XGAuthHandler (Maybe XGUser)
+maybeHandler conn = mkAuthHandler $ \req -> runReaderT (findUser req) conn
 
-authContext :: Context XGContextType
-authContext = requireHandler :. maybeHandler :. EmptyContext
+authContext :: PG.Connection -> Context XGContextType
+authContext conn = requireHandler conn :. maybeHandler conn :. EmptyContext
+
+-- | 为layout准备的Context，我们不能为了显示路由信息，就需要启动一个数据库。
+emptyContext :: Context XGContextType
+emptyContext = justHandler :. nothingHandler :. EmptyContext
+    where justHandler :: XGAuthHandler XGUser
+          justHandler = mkAuthHandler $ const (pure $ User 1 "")
+
+          nothingHandler :: XGAuthHandler (Maybe XGUser)
+          nothingHandler = mkAuthHandler $ const (pure Nothing)
