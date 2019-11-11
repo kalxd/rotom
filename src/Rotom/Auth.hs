@@ -21,6 +21,7 @@ import Control.Monad.Trans.Reader (runReaderT)
 
 import Rotom.Type
 import Rotom.Type.App (XGApp, throw)
+import Rotom.Type.Error
 
 type XGAuthHandler = AuthHandler Request
 type XGContextType = '[XGAuthHandler XGUser, XGAuthHandler (Maybe XGUser)]
@@ -50,7 +51,7 @@ findUser req = do
 requireHandler :: PG.Connection -> XGAuthHandler XGUser
 requireHandler conn = mkAuthHandler $ \req -> do
     user <- runReaderT (findUser req) conn
-    maybe (throwError err403{ errBody = "你他娘谁啊！" }) pure user
+    maybe (throwError $ transToServantError $ AuthError AuthUserError) pure user
 
 maybeHandler :: PG.Connection -> XGAuthHandler (Maybe XGUser)
 maybeHandler conn = mkAuthHandler $ \req -> runReaderT (findUser req) conn

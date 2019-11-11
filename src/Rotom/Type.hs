@@ -3,6 +3,7 @@
 module Rotom.Type ( module Rotom.Type
                   , Rotom.Type.App.XGApp
                   , Rotom.Type.User.XGUser(..)
+                  , module Rotom.Type.Error
                   ) where
 
 import Rotom.Type.App
