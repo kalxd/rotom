@@ -8,7 +8,7 @@ module Rotom.Type ( module Rotom.Type
 
 import Rotom.Type.App
 import Rotom.Type.Config (XGAppConfig(appDB), readConfig)
-import Rotom.Type.Error (XGError, transToServantError)
+import Rotom.Type.Error (XGError)
 import Rotom.Type.User (XGUser(..))
 
 import Control.Monad ((>=>))

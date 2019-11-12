@@ -8,7 +8,7 @@ import Servant
 import Control.Monad.Trans.Reader
 import Database.PostgreSQL.Simple (Connection)
 
-import Rotom.Type.Error (XGError, transToServantError)
+import Rotom.Type.Error (XGError, ToXGError(..))
 
 -- | 整个Handler包含的环境
 type XGApp = ReaderT Connection Handler
@@ -19,4 +19,4 @@ appToHandler = flip runReaderT
 
 -- | 抛出一个我们的错误
 throw :: XGError -> XGApp a
-throw = throwError . transToServantError
+throw = throwError . toServantError
