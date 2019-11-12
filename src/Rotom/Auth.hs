@@ -16,7 +16,7 @@ import qualified Database.PostgreSQL.Simple as PG
 
 import qualified Data.ByteString as BS
 import Data.List (find)
-import Data.Maybe (listToMaybe, maybe)
+import Data.Maybe (maybe)
 import Control.Monad.Trans.Reader (runReaderT)
 
 import Rotom.Type
@@ -63,7 +63,7 @@ authContext conn = requireHandler conn :. maybeHandler conn :. EmptyContext
 emptyContext :: Context XGContextType
 emptyContext = justHandler :. nothingHandler :. EmptyContext
     where justHandler :: XGAuthHandler XGUser
-          justHandler = mkAuthHandler $ const (pure $ User 1 "")
+          justHandler = mkAuthHandler $ const (throwError err404)
 
           nothingHandler :: XGAuthHandler (Maybe XGUser)
           nothingHandler = mkAuthHandler $ const (pure Nothing)
