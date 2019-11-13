@@ -17,21 +17,16 @@ import Data.Maybe (listToMaybe, isNothing)
 
 import qualified Database.PostgreSQL.Simple as PG
 
--- | 直接生成数据连接
--- | 仅仅因为mkAuthHandler无法带有XGApp信息，无法调用已封装的接口。
-createConn :: IO PG.Connection
-createConn = PG.connect =<< appDB <$> readConfig
-
 -- | 数据库查询。
 query :: (PG.ToRow q, PG.FromRow r) => PG.Query -> q -> XGApp [r]
 query sql q = do
-    conn <- ask
+    conn <- askConnect
     liftIO $ PG.query conn sql q
 
 -- | 数据库查询。
 query' :: PG.FromRow r => PG.Query -> XGApp [r]
 query' sql = do
-    conn <- ask
+    conn <- askConnect
     liftIO $ PG.query_ conn sql
 
 -- | 数据库查询，只找一个元素。

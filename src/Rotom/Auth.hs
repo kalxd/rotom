@@ -21,6 +21,7 @@ import Control.Monad.Trans.Reader (runReaderT)
 
 import Rotom.Type
 import Rotom.Type.App (XGApp, throw)
+import Rotom.Type.Config (XGAppConfig(appDB))
 import Rotom.Type.Error (XGError(..), ToXGError(..))
 
 type XGAuthHandler = AuthHandler Request
@@ -48,16 +49,16 @@ findUser req = do
         Nothing -> pure Nothing
         Just ver' -> queryOne "select id, mkzi from yshu where id = ?" [ver']
 
-requireHandler :: PG.Connection -> XGAuthHandler XGUser
-requireHandler conn = mkAuthHandler $ \req -> do
-    user <- runReaderT (findUser req) conn
+requireHandler :: XGAppConfig -> XGAuthHandler XGUser
+requireHandler config = mkAuthHandler $ \req -> do
+    user <- runReaderT (findUser req) config
     maybe (throwError $ toServantError AuthUserNeed) pure user
 
-maybeHandler :: PG.Connection -> XGAuthHandler (Maybe XGUser)
-maybeHandler conn = mkAuthHandler $ \req -> runReaderT (findUser req) conn
+maybeHandler :: XGAppConfig -> XGAuthHandler (Maybe XGUser)
+maybeHandler config = mkAuthHandler $ \req -> runReaderT (findUser req) config
 
-authContext :: PG.Connection -> Context XGContextType
-authContext conn = requireHandler conn :. maybeHandler conn :. EmptyContext
+authContext :: XGAppConfig -> Context XGContextType
+authContext config = requireHandler config :. maybeHandler config :. EmptyContext
 
 -- | 为layout准备的Context，我们不能为了显示路由信息，就需要启动一个数据库。
 emptyContext :: Context XGContextType
