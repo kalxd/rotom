@@ -7,8 +7,8 @@ module Rotom.Type ( module Rotom.Type
                   ) where
 
 import Rotom.Type.App
-import Rotom.Type.Config (XGAppConfig(appDB), readConfig)
-import Rotom.Type.Error (XGError)
+import Rotom.Type.Config (XGAppConfig, readConfig)
+import Rotom.Type.Error (ToXGError)
 import Rotom.Type.User (XGUser(..))
 
 import Control.Monad ((>=>))
@@ -38,7 +38,7 @@ queryOne' :: PG.FromRow r => PG.Query -> XGApp (Maybe r)
 queryOne' = query' >=> pure . listToMaybe
 
 -- | 强制获取一个值，为空值就抛出错误。
-queryJust :: (PG.ToRow q, PG.FromRow r) => XGError -> PG.Query -> q -> XGApp r
+queryJust :: (PG.ToRow q, PG.FromRow r, ToXGError e) => e -> PG.Query -> q -> XGApp r
 queryJust e sql q = do
     r <- queryOne sql q
     case r of
@@ -46,7 +46,7 @@ queryJust e sql q = do
         Just r' -> pure r'
 
 -- | 强制获取一个值，为空值就抛出错误。
-queryJust' :: PG.FromRow r => XGError -> PG.Query -> XGApp r
+queryJust' :: (PG.FromRow r, ToXGError e) => e -> PG.Query -> XGApp r
 queryJust' e sql = do
     r <- queryOne' sql
     case r of

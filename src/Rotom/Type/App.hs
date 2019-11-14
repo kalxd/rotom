@@ -7,7 +7,7 @@ import Servant
 import Control.Monad.Trans.Reader
 import Control.Monad.IO.Class (liftIO)
 
-import Rotom.Type.Error (XGError, ToXGError(..))
+import Rotom.Type.Error (ToXGError(..))
 import Rotom.Type.Config (XGAppConfig(..))
 
 import qualified Database.PostgreSQL.Simple as PG
@@ -26,5 +26,5 @@ askConnect = do
     liftIO $ PG.connect info
 
 -- | 抛出一个我们的错误
-throw :: XGError -> XGApp a
+throw :: ToXGError e => e -> XGApp a
 throw = throwError . toServantError
