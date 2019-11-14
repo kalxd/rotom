@@ -36,19 +36,3 @@ queryOne sql q = query sql q >>= pure . listToMaybe
 -- | 数据库查询，只找一个元素。
 queryOne' :: PG.FromRow r => PG.Query -> XGApp (Maybe r)
 queryOne' = query' >=> pure . listToMaybe
-
--- | 强制获取一个值，为空值就抛出错误。
-queryJust :: (PG.ToRow q, PG.FromRow r, ToXGError e) => e -> PG.Query -> q -> XGApp r
-queryJust e sql q = do
-    r <- queryOne sql q
-    case r of
-        Nothing -> throw e
-        Just r' -> pure r'
-
--- | 强制获取一个值，为空值就抛出错误。
-queryJust' :: (PG.FromRow r, ToXGError e) => e -> PG.Query -> XGApp r
-queryJust' e sql = do
-    r <- queryOne' sql
-    case r of
-        Nothing -> throw e
-        Just r' -> pure r'

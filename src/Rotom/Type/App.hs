@@ -6,6 +6,7 @@ module Rotom.Type.App ( module Control.Monad.Trans.Reader
 import Servant
 import Control.Monad.Trans.Reader
 import Control.Monad.IO.Class (liftIO)
+import Data.Maybe (maybe)
 
 import Rotom.Type.Error (ToXGError(..))
 import Rotom.Type.Config (XGAppConfig(..))
@@ -18,6 +19,11 @@ type XGApp = ReaderT XGAppConfig Handler
 -- | XGApp a ~ Handler a
 appToHandler :: XGAppConfig -> XGApp a -> Handler a
 appToHandler = flip runReaderT
+
+-- | 强制从Maybe a取得值，
+-- 若不存在，抛出错误。
+liftMaybe :: ToXGError e => e -> Maybe a -> XGApp a
+liftMaybe e = maybe (throw e) pure
 
 -- | 新建数据库连接。
 askConnect :: XGApp PG.Connection
