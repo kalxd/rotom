@@ -12,7 +12,6 @@ module Rotom.Auth ( XGContextType
 import Servant
 import Servant.Server.Experimental.Auth
 import Network.Wai (Request, requestHeaders)
-import qualified Database.PostgreSQL.Simple as PG
 
 import qualified Data.ByteString as BS
 import Data.List (find)
@@ -21,8 +20,8 @@ import Control.Monad.Trans.Reader (runReaderT)
 
 import Rotom.Type
 import Rotom.Type.App (XGApp, throw)
-import Rotom.Type.Config (XGAppConfig(appDB))
-import Rotom.Type.Error (XGError(..), ToXGError(..))
+import Rotom.Type.Config (XGAppConfig)
+import Rotom.Type.Error (XGError(..))
 import qualified Rotom.Hand.User as UserH
 
 type XGAuthHandler = AuthHandler Request
