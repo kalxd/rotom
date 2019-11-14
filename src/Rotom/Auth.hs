@@ -23,6 +23,7 @@ import Rotom.Type
 import Rotom.Type.App (XGApp, throw)
 import Rotom.Type.Config (XGAppConfig(appDB))
 import Rotom.Type.Error (XGError(..), ToXGError(..))
+import qualified Rotom.Hand.User as UserH
 
 type XGAuthHandler = AuthHandler Request
 type XGContextType = '[XGAuthHandler XGUser, XGAuthHandler (Maybe XGUser)]
@@ -43,16 +44,13 @@ findRotomVer = fmap snd . find f . requestHeaders
     where f (name, _) = name == "rotom"
 
 findUser :: Request -> XGApp (Maybe XGUser)
-findUser req = do
-    ver <- pure $ findRotomVer req
-    case ver of
-        Nothing -> pure Nothing
-        Just ver' -> queryOne "select id, mkzi from yshu where id = ?" [ver']
+findUser req = case findRotomVer req of
+                   Nothing -> pure Nothing
+                   Just ver -> UserH.findByToken ver
 
 requireHandler :: XGAppConfig -> XGAuthHandler XGUser
 requireHandler config = mkAuthHandler $ \req -> do
-    user <- runReaderT (findUser req) config
-    maybe (throwError $ toServantError AuthUserNeed) pure user
+    runReaderT (findUser req >>= liftMaybe AuthUserNeed) config
 
 maybeHandler :: XGAppConfig -> XGAuthHandler (Maybe XGUser)
 maybeHandler config = mkAuthHandler $ \req -> runReaderT (findUser req) config

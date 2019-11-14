@@ -1,7 +1,7 @@
 -- | 全局应用，大部分操作都应用于此。
 -- | 写业务离不它。
 module Rotom.Type ( module Rotom.Type
-                  , Rotom.Type.App.XGApp
+                  , module Rotom.Type.App
                   , Rotom.Type.User.XGUser(..)
                   , module Rotom.Type.Error
                   ) where
