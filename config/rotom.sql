@@ -21,6 +21,39 @@ SET default_tablespace = '';
 SET default_with_oids = false;
 
 --
+-- Name: bnqk; Type: TABLE; Schema: public; Owner: -
+--
+
+CREATE TABLE public.bnqk (
+    id integer NOT NULL,
+    mkzi text DEFAULT ''::text NOT NULL,
+    ffzu_id integer,
+    yshu_id integer,
+    iljmriqi timestamp with time zone DEFAULT now() NOT NULL
+);
+
+
+--
+-- Name: bnqk_id_seq; Type: SEQUENCE; Schema: public; Owner: -
+--
+
+CREATE SEQUENCE public.bnqk_id_seq
+    AS integer
+    START WITH 1
+    INCREMENT BY 1
+    NO MINVALUE
+    NO MAXVALUE
+    CACHE 1;
+
+
+--
+-- Name: bnqk_id_seq; Type: SEQUENCE OWNED BY; Schema: public; Owner: -
+--
+
+ALTER SEQUENCE public.bnqk_id_seq OWNED BY public.bnqk.id;
+
+
+--
 -- Name: ffzu; Type: TABLE; Schema: public; Owner: -
 --
 
@@ -86,6 +119,24 @@ ALTER SEQUENCE public.yshu_id_seq OWNED BY public.yshu.id;
 
 
 --
+-- Name: yyhu_view; Type: VIEW; Schema: public; Owner: -
+--
+
+CREATE VIEW public.yyhu_view AS
+ SELECT yshu.id,
+    yshu.mkzi,
+    md5((yshu.id || yshu.mkzi)) AS token
+   FROM public.yshu;
+
+
+--
+-- Name: bnqk id; Type: DEFAULT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bnqk ALTER COLUMN id SET DEFAULT nextval('public.bnqk_id_seq'::regclass);
+
+
+--
 -- Name: ffzu id; Type: DEFAULT; Schema: public; Owner: -
 --
 
@@ -97,6 +148,14 @@ ALTER TABLE ONLY public.ffzu ALTER COLUMN id SET DEFAULT nextval('public.ffzu_id
 --
 
 ALTER TABLE ONLY public.yshu ALTER COLUMN id SET DEFAULT nextval('public.yshu_id_seq'::regclass);
+
+
+--
+-- Name: bnqk bnqk_pkey; Type: CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bnqk
+    ADD CONSTRAINT bnqk_pkey PRIMARY KEY (id);
 
 
 --
@@ -113,6 +172,22 @@ ALTER TABLE ONLY public.ffzu
 
 ALTER TABLE ONLY public.yshu
     ADD CONSTRAINT yshu_pkey PRIMARY KEY (id);
+
+
+--
+-- Name: bnqk bnqk_ffzu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bnqk
+    ADD CONSTRAINT bnqk_ffzu_id_fkey FOREIGN KEY (ffzu_id) REFERENCES public.ffzu(id);
+
+
+--
+-- Name: bnqk bnqk_yshu_id_fkey; Type: FK CONSTRAINT; Schema: public; Owner: -
+--
+
+ALTER TABLE ONLY public.bnqk
+    ADD CONSTRAINT bnqk_yshu_id_fkey FOREIGN KEY (yshu_id) REFERENCES public.yshu(id);
 
 
 --
