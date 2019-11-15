@@ -119,10 +119,10 @@ ALTER SEQUENCE public.yshu_id_seq OWNED BY public.yshu.id;
 
 
 --
--- Name: yyhu_view; Type: VIEW; Schema: public; Owner: -
+-- Name: yshu_view; Type: VIEW; Schema: public; Owner: -
 --
 
-CREATE VIEW public.yyhu_view AS
+CREATE VIEW public.yshu_view AS
  SELECT yshu.id,
     yshu.mkzi,
     md5((yshu.id || yshu.mkzi)) AS token
