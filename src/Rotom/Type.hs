@@ -14,6 +14,7 @@ import Rotom.Type.User (XGUser(..))
 import Control.Monad ((>=>))
 import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (listToMaybe, isNothing)
+import Data.Int (Int64)
 
 import qualified Database.PostgreSQL.Simple as PG
 
@@ -36,3 +37,21 @@ queryOne sql q = query sql q >>= pure . listToMaybe
 -- | 数据库查询，只找一个元素。
 queryOne' :: PG.FromRow r => PG.Query -> XGApp (Maybe r)
 queryOne' = query' >=> pure . listToMaybe
+
+-- | 执行sql，返回执行状态。
+execute :: PG.ToRow q => PG.Query -> q -> XGApp Int64
+execute sql q = do
+    conn <- askConnect
+    liftIO $ PG.execute conn sql q
+
+-- | 执行sql，返回执行状态。
+execute' :: PG.Query -> XGApp Int64
+execute' sql = do
+    conn <- askConnect
+    liftIO $ PG.execute_ conn sql
+
+-- | 执行sql，更新或插入多条记录，返回执行状态。
+executeMany :: PG.ToRow q => PG.Query -> [q] -> XGApp Int64
+executeMany sql q = do
+    conn <- askConnect
+    liftIO $ PG.executeMany conn sql q
