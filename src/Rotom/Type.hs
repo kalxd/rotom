@@ -4,11 +4,12 @@ module Rotom.Type ( module Rotom.Type
                   , module Rotom.Type.App
                   , Rotom.Type.User.XGUser(..)
                   , module Rotom.Type.Error
+                  , sql
                   ) where
 
 import Rotom.Type.App
+import Rotom.Type.Error
 import Rotom.Type.Config (XGAppConfig, readConfig)
-import Rotom.Type.Error (ToXGError)
 import Rotom.Type.User (XGUser(..))
 
 import Control.Monad ((>=>))
@@ -17,6 +18,7 @@ import Data.Maybe (listToMaybe, isNothing)
 import Data.Int (Int64)
 
 import qualified Database.PostgreSQL.Simple as PG
+import Database.PostgreSQL.Simple.SqlQQ (sql)
 
 -- | 数据库查询。
 query :: (PG.ToRow q, PG.FromRow r) => PG.Query -> q -> XGApp [r]

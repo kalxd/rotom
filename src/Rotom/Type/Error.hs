@@ -62,14 +62,14 @@ class ToXGError a where
                               }
 
 data XGError = NotFoundYSHU -- 未找到用户
-             | NotFoundFFZZ -- 未找到分组
+             | NotFoundFFZU -- 未找到分组
              | NotFoundBNQK -- 未找到表情
              | AuthUserNeed -- 用户未登录
              | OtherError T.Text -- 其他错误
 
 instance ToXGError XGError where
     toError NotFoundYSHU = errorInfo NoYSHUCode "找不到用户。"
-    toError NotFoundFFZZ = errorInfo NoFFZUCode "找不到分组。"
+    toError NotFoundFFZU = errorInfo NoFFZUCode "找不到分组。"
     toError NotFoundBNQK = errorInfo NoBNQKCode "找不到表情。"
     toError AuthUserNeed = errorInfo AuthUserCode "你他娘谁啊！"
     toError (OtherError msg) = errorInfo OtherCode msg
