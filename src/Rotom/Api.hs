@@ -1,9 +1,10 @@
+{-# LANGUAGE DataKinds #-}
+{-# LANGUAGE TypeOperators #-}
+
 -- | rotom接口汇总。
 --
 -- 相当于总路由入口和定义。
-{-# LANGUAGE DataKinds #-}
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE TypeOperators #-}
+
 module Rotom.Api ( API
                  , api
                  , apiRoute
@@ -20,10 +21,10 @@ import qualified Database.PostgreSQL.Simple as PG
 type AllAPI = FFZU.API
 
 -- 所有路由汇总
-type API = AllAPI
+type API = RequireAuth :> AllAPI
 
 apiRoute :: ServerT API XGApp
-apiRoute = FFZU.api
+apiRoute user = FFZU.api user
 
 api :: Proxy API
 api = Proxy

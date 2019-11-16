@@ -11,7 +11,6 @@ module Rotom.Hand.FFZU ( API
 
 import Servant
 import Rotom.Type
-import Rotom.Auth (RequireAuth)
 import Rotom.Type.FFZU
 
 import qualified Data.Text as T
@@ -19,9 +18,9 @@ import Data.Aeson (FromJSON(..))
 import GHC.Generics
 
 -- | 分组API
-type API = "ffzu" :> RequireAuth :> (CreateAPI :<|> UpdateAPI)
+type API = "ffzu" :> (CreateAPI :<|> UpdateAPI)
 
-api :: ServerT API XGApp
+api :: XGUser -> ServerT API XGApp
 api user = createAPI user :<|> updateAPI user
 
 --
