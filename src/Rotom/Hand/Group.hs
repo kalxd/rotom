@@ -1,6 +1,5 @@
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE TypeOperators #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
@@ -15,57 +14,52 @@ import Rotom.Type
 import Rotom.Type.Group
 
 import qualified Data.Text as T
-import Data.Aeson (FromJSON(..))
-import GHC.Generics
+import Data.Aeson (FromJSON(..), (.:), withObject)
 
 -- | 分组API
--- type API = "分组" :> (CreateAPI :<|> UpdateAPI)
-type API = "分组" :> AllAPI
+type API = "分组" :> (AllAPI :<|> CreateAPI :<|> UpdateAPI)
 
 api :: XGUser -> ServerT API XGApp
--- api user = createAPI user :<|> updateAPI user
-api user = allAPI user
+api user = allAPI user :<|> createAPI user :<|> updateAPI user
 
 type AllAPI = "列表" :> Get '[JSON] [XGGroup]
+
+-- | 更新、创建分组的http body。
+newtype XGFormBody = FormBody { groupName :: T.Text }
+
+instance FromJSON XGFormBody where
+    parseJSON = withObject "FormBody" $ \o -> FormBody <$> o .: "名字"
 
 s_all = [sql| select
               "id", "名字", "用户id", "创建日期"
               from "分组"
               where "用户id" = ?
               |]
+
 -- | 查找所有分组。
 allAPI :: XGUser -> XGApp [XGGroup]
 allAPI User{..} = query s_all [userId]
 
-{-
---
--- 创建分组
---
-newtype XGFormBody = FormBody { ffzuName :: T.Text
-                              } deriving (Generic)
-instance FromJSON XGFormBody
+-- | 创建分组
+type CreateAPI = "创建"
+                 :> ReqBody '[JSON] XGFormBody
+                 :> Post '[JSON] XGGroup
 
-type CreateAPI = ReqBody '[JSON] XGFormBody
-                 :> Post '[JSON] XGFFZU
+c_group = [sql| insert into "分组"
+                ("名字", "用户id")
+                values (?, ?)
+                returning * |]
 
-ccsql = [sql| insert into "ffzu"
-              ("mkzi", "yshu_id")
-              values (?, ?)
-              returning * |]
-
-createAPI :: XGUser -> XGFormBody -> XGApp XGFFZU
+createAPI :: XGUser -> XGFormBody -> XGApp XGGroup
 createAPI User{..} FormBody{..} = do
-    queryOne ccsql (ffzuName, userId) >>= liftMaybe NotFoundFFZU
+    queryOne c_group (groupName, userId) >>= liftMaybe NotFoundFFZU
 
---
--- 重命名分组，即更新
---
-type UpdateAPI = Capture "id" Int :> ReqBody '[JSON] XGFormBody :> Put '[JSON] XGFFZU
+-- | 重命名分组，即更新
+type UpdateAPI = Capture "id" Int :> ReqBody '[JSON] XGFormBody :> Put '[JSON] XGGroup
 
 uusql = [sql| update "ffzu"
               set "mkzi" = ? where id = ?
               returning * |]
 
-updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGFFZU
-updateAPI _ id FormBody{..} = queryOne uusql (ffzuName, id) >>= liftMaybe NotFoundFFZU
--}
+updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
+updateAPI _ id FormBody{..} = queryOne uusql (groupName, id) >>= liftMaybe NotFoundFFZU
