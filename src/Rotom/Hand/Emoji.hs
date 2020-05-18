@@ -22,7 +22,7 @@ api :: XGUser -> ServerT API XGApp
 api user = createAPI user
 
 throwNil :: Maybe a -> XGApp a
-throwNil = liftMaybe NotFoundBNQK
+throwNil = liftMaybe NoEmojiE
 
 -- | 表情相关表单定义。
 data XGEmojiForm = EmojiForm { name :: Text

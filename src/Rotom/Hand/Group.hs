@@ -52,7 +52,7 @@ c_group = [sql| insert into "分组"
 
 createAPI :: XGUser -> XGFormBody -> XGApp XGGroup
 createAPI User{..} FormBody{..} = do
-    queryOne c_group (groupName, userId) >>= liftMaybe NotFoundFFZU
+    queryOne c_group (groupName, userId) >>= liftMaybe NoGroupE
 
 -- | 重命名分组，即更新
 type UpdateAPI = Capture "id" Int
@@ -65,4 +65,4 @@ u_group = [sql| update "分组"
 
 -- | 更新分组。
 updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
-updateAPI _ id FormBody{..} = queryOne u_group (groupName, id) >>= liftMaybe NotFoundFFZU
+updateAPI _ id FormBody{..} = queryOne u_group (groupName, id) >>= liftMaybe NoGroupE

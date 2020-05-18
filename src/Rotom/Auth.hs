@@ -49,7 +49,7 @@ findUser req = case findRotomVer req of
 
 requireHandler :: XGAppConfig -> XGAuthHandler XGUser
 requireHandler config = mkAuthHandler $ \req -> do
-    runReaderT (findUser req >>= liftMaybe AuthUserNeed) config
+    runReaderT (findUser req >>= liftMaybe AuthE) config
 
 maybeHandler :: XGAppConfig -> XGAuthHandler (Maybe XGUser)
 maybeHandler config = mkAuthHandler $ \req -> runReaderT (findUser req) config
