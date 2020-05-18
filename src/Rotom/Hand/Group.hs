@@ -12,6 +12,7 @@ module Rotom.Hand.Group ( API
 import Servant
 import Rotom.Type
 import Rotom.Type.Group
+import qualified  Rotom.Action.Group as GroupA
 
 import qualified Data.Text as T
 import Data.Aeson (FromJSON(..), (.:), withObject)
@@ -51,8 +52,7 @@ c_group = [sql| insert into "分组"
                 returning * |]
 
 createAPI :: XGUser -> XGFormBody -> XGApp XGGroup
-createAPI User{..} FormBody{..} = do
-    queryOne c_group (groupName, userId) >>= liftMaybe NoGroupE
+createAPI User{..} FormBody{..} = queryOne c_group (groupName, userId) >>= GroupA.throwNil
 
 -- | 重命名分组，即更新
 type UpdateAPI = Capture "id" Int
@@ -65,4 +65,4 @@ u_group = [sql| update "分组"
 
 -- | 更新分组。
 updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
-updateAPI _ id FormBody{..} = queryOne u_group (groupName, id) >>= liftMaybe NoGroupE
+updateAPI _ id FormBody{..} = queryOne u_group (groupName, id) >>= GroupA.throwNil
