@@ -55,11 +55,14 @@ createAPI User{..} FormBody{..} = do
     queryOne c_group (groupName, userId) >>= liftMaybe NotFoundFFZU
 
 -- | 重命名分组，即更新
-type UpdateAPI = Capture "id" Int :> ReqBody '[JSON] XGFormBody :> Put '[JSON] XGGroup
+type UpdateAPI = Capture "id" Int
+                 :> "更新"
+                 :> ReqBody '[JSON] XGFormBody :> Patch '[JSON] XGGroup
 
-uusql = [sql| update "ffzu"
-              set "mkzi" = ? where id = ?
-              returning * |]
+u_group = [sql| update "分组"
+                set "名字" = ? where "id" = ?
+                returning * |]
 
+-- | 更新分组。
 updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
-updateAPI _ id FormBody{..} = queryOne uusql (groupName, id) >>= liftMaybe NotFoundFFZU
+updateAPI _ id FormBody{..} = queryOne u_group (groupName, id) >>= liftMaybe NotFoundFFZU
