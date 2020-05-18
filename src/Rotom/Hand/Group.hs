@@ -5,20 +5,20 @@
 {-# LANGUAGE RecordWildCards #-}
 
 -- | 分组
-module Rotom.Hand.FFZU ( API
-                       , api
-                       ) where
+module Rotom.Hand.Group ( API
+                        , api
+                        ) where
 
 import Servant
 import Rotom.Type
-import Rotom.Type.FFZU
+import Rotom.Type.Group
 
 import qualified Data.Text as T
 import Data.Aeson (FromJSON(..))
 import GHC.Generics
 
 -- | 分组API
-type API = "ffzu" :> (CreateAPI :<|> UpdateAPI)
+type API = "分组" :> (CreateAPI :<|> UpdateAPI)
 
 api :: XGUser -> ServerT API XGApp
 api user = createAPI user :<|> updateAPI user

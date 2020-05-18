@@ -4,7 +4,7 @@
 {-# LANGUAGE DeriveAnyClass #-}
 -- | 分组类型
 
-module Rotom.Type.FFZU where
+module Rotom.Type.Group where
 
 import GHC.Generics (Generic)
 import qualified Data.Text as T

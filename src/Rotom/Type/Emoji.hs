@@ -4,8 +4,7 @@
 {-# LANGUAGE OverloadedStrings #-}
 
 -- | 表情基本类型
-
-module Rotom.Type.BNQK where
+module Rotom.Type.Emoji where
 
 import GHC.Generics (Generic)
 import Data.Text (Text)

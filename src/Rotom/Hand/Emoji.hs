@@ -6,20 +6,19 @@
 {-# LANGUAGE QuasiQuotes #-}
 
 -- | 表情管理
-
-module Rotom.Hand.BNQK ( API
-                       , api
-                       ) where
+module Rotom.Hand.Emoji ( API
+                        , api
+                        ) where
 
 import Servant
 import Rotom.Type
-import Rotom.Type.BNQK
+import Rotom.Type.Emoji
 
 import GHC.Generics (Generic)
 import Data.Text (Text)
 import Data.Aeson (FromJSON)
 
-type API = "bnqk" :> CreateAPI
+type API = "表情" :> CreateAPI
 
 api :: XGUser -> ServerT API XGApp
 api user = createAPI user
