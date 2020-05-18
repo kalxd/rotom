@@ -2,8 +2,8 @@
 {-# LANGUAGE FlexibleInstances #-}
 
 -- | 全局错误定义
--- 虽然自定义了新错误类型，但XGApp只接受ServantErr，
--- 所以最后只保留下ServantErr，catchE无法正确catch到具体类型。
+-- 虽然自定义了新错误类型，但XGApp只接受ServerError，
+-- 所以最后只保留下ServerError，catchE无法正确catch到具体类型。
 
 module Rotom.Type.Error ( XGError(..)
                         , ToXGError(..)
@@ -21,7 +21,7 @@ data XGErrorCode = NoYSHUCode -- 无用户
                  | OtherCode -- 其他，一般用于用户信息提示，只需要显示对应信息，不用处理该错误。
                  deriving (Eq)
 
-pickServantError :: XGErrorCode -> ServantErr
+pickServantError :: XGErrorCode -> ServerError
 pickServantError NoYSHUCode = err404
 pickServantError NoFFZUCode = err404
 pickServantError NoBNQKCode = err404
@@ -50,7 +50,7 @@ instance Enum XGErrorCode where
 class ToXGError a where
     toError :: a -> XGErrorInfo
 
-    toServantError :: a -> ServantErr
+    toServantError :: a -> ServerError
     toServantError a = let ErrorInfo (code, msg) = toError a
                            err = pickServantError code
                            header = [("Content-Type", "application/json")]
