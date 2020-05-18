@@ -1,3 +1,4 @@
 .stack-work/
 rotom.cabal
 config/config.yaml
+config/config.dhall

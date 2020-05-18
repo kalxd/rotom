@@ -1,4 +1,5 @@
 -- | Servant整个服务类型定义
+{-# LANGUAGE RecordWildCards #-}
 module Rotom.Type.App ( module Control.Monad.Trans.Reader
                       , module Rotom.Type.App
                       ) where
@@ -9,9 +10,10 @@ import Control.Monad.IO.Class (liftIO)
 import Data.Maybe (maybe)
 
 import Rotom.Type.Error (ToXGError(..))
-import Rotom.Type.Config (XGAppConfig(..))
+import Rotom.Type.Config (XGAppConfig(..), XGDB(..))
 
 import qualified Database.PostgreSQL.Simple as PG
+import qualified Data.Text as Text
 
 -- | 整个Handler包含的环境。
 type XGApp = ReaderT XGAppConfig Handler
@@ -28,7 +30,13 @@ liftMaybe e = maybe (throw e) pure
 -- | 新建数据库连接。
 askConnect :: XGApp PG.Connection
 askConnect = do
-    info <- asks appDB
+    DBConfig{..} <- asks appDB
+    let info = PG.defaultConnectInfo { PG.connectHost = Text.unpack dbAddr
+                                     , PG.connectPort = fromIntegral dbPort
+                                     , PG.connectUser = Text.unpack dbUser
+                                     , PG.connectPassword = Text.unpack dbPassword
+                                     , PG.connectDatabase = Text.unpack dbName
+                                     }
     liftIO $ PG.connect info
 
 -- | 抛出一个我们的错误
