@@ -65,4 +65,6 @@ u_group = [sql| update "分组"
 
 -- | 更新分组。
 updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
-updateAPI _ id FormBody{..} = queryOne u_group (groupName, id) >>= GroupA.throwNil
+updateAPI user id FormBody{..} = do
+    GroupA.guardAll id user
+    queryOne u_group (groupName, id) >>= GroupA.throwNil
