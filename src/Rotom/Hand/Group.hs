@@ -3,6 +3,7 @@
 {-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE QuasiQuotes #-}
 {-# LANGUAGE RecordWildCards #-}
+{-# LANGUAGE OverloadedStrings #-}
 
 -- | 分组
 module Rotom.Hand.Group ( API
@@ -18,11 +19,25 @@ import Data.Aeson (FromJSON(..))
 import GHC.Generics
 
 -- | 分组API
-type API = "分组" :> (CreateAPI :<|> UpdateAPI)
+-- type API = "分组" :> (CreateAPI :<|> UpdateAPI)
+type API = "分组" :> AllAPI
 
 api :: XGUser -> ServerT API XGApp
-api user = createAPI user :<|> updateAPI user
+-- api user = createAPI user :<|> updateAPI user
+api user = allAPI user
 
+type AllAPI = "列表" :> Get '[JSON] [XGGroup]
+
+s_all = [sql| select
+              "id", "名字", "用户id", "创建日期"
+              from "分组"
+              where "用户id" = ?
+              |]
+-- | 查找所有分组。
+allAPI :: XGUser -> XGApp [XGGroup]
+allAPI User{..} = query s_all [userId]
+
+{-
 --
 -- 创建分组
 --
@@ -53,3 +68,4 @@ uusql = [sql| update "ffzu"
 
 updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGFFZU
 updateAPI _ id FormBody{..} = queryOne uusql (ffzuName, id) >>= liftMaybe NotFoundFFZU
+-}

@@ -1,26 +1,26 @@
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE DeriveAnyClass #-}
+{-# LANGUAGE DeriveGeneric #-}
 -- | 分组类型
 
 module Rotom.Type.Group where
 
-import GHC.Generics (Generic)
 import qualified Data.Text as T
+import GHC.Generics
 import Data.Aeson (ToJSON(..), (.=), object)
 import Data.Time.LocalTime (ZonedTime)
 import Database.PostgreSQL.Simple (FromRow(..))
 
-data XGFFZU = FFZU { ffzzID :: Int
-                   , ffzzName :: T.Text
-                   , ffzzUserID :: Int
-                   , ffzzCreateAt :: ZonedTime
-                   } deriving (Generic, FromRow)
+data XGGroup = Group { groupId :: Int
+                     , groupName :: T.Text
+                     , groupUserId :: Int
+                     , groupCreateAt :: ZonedTime
+                     } deriving (FromRow, Generic)
 
-instance ToJSON XGFFZU where
-    toJSON FFZU{..} = object [ "id" .= ffzzID
-                             , "name" .= ffzzName
-                             , "createat" .= ffzzCreateAt
-                             ]
-
+instance ToJSON XGGroup where
+    toJSON Group{..} = object [ "id" .= groupId
+                              , "名字" .= groupName
+                              , "用户id" .= groupUserId
+                              , "创建日期" .= groupCreateAt
+                              ]
