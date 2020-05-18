@@ -12,19 +12,17 @@ import Data.Time.LocalTime (ZonedTime)
 import Data.Aeson (ToJSON(..), object, (.=))
 import Database.PostgreSQL.Simple (FromRow)
 
-data XGBNQK = BNQK { bnqkID :: Int
-                   , bnqkName :: Text
-                   , bnqkLink :: Text
-                   , bnqkGroupID :: Int
-                   , bnqkUserID :: Int
-                   , bnqkCreateAt :: ZonedTime
-                   } deriving (Generic, FromRow)
+data XGEmoji = Emoji { emojiId :: Int
+                     , emojiName :: Text
+                     , emojiLink :: Text
+                     , emojiGroupId :: Int
+                     , emojiCreateAt :: ZonedTime
+                     } deriving (Generic, FromRow)
 
-instance ToJSON XGBNQK where
-    toJSON BNQK{..} = object [ "id" .= bnqkID
-                             , "name" .= bnqkName
-                             , "link" .= bnqkLink
-                             , "groupid" .= bnqkGroupID
-                             , "userid" .= bnqkUserID
-                             , "createat" .= bnqkCreateAt
-                             ]
+instance ToJSON XGEmoji where
+    toJSON Emoji{..} = object [ "id" .= emojiId
+                              , "名字" .= emojiName
+                              , "链扫" .= emojiLink
+                              , "分组id" .= emojiGroupId
+                              , "创建日期" .= emojiCreateAt
+                              ]

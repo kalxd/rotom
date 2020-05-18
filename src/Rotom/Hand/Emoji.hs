@@ -1,10 +1,9 @@
 {-# LANGUAGE TypeOperators #-}
 {-# LANGUAGE DataKinds #-}
 {-# LANGUAGE DuplicateRecordFields #-}
-{-# LANGUAGE DeriveGeneric #-}
 {-# LANGUAGE RecordWildCards #-}
 {-# LANGUAGE QuasiQuotes #-}
-
+{-# LANGUAGE OverloadedStrings #-}
 -- | 表情管理
 module Rotom.Hand.Emoji ( API
                         , api
@@ -14,9 +13,8 @@ import Servant
 import Rotom.Type
 import Rotom.Type.Emoji
 
-import GHC.Generics (Generic)
 import Data.Text (Text)
-import Data.Aeson (FromJSON)
+import Data.Aeson (FromJSON(..), (.:), withObject)
 
 type API = "表情" :> CreateAPI
 
@@ -26,23 +24,26 @@ api user = createAPI user
 throwNil :: Maybe a -> XGApp a
 throwNil = liftMaybe NotFoundBNQK
 
----
---- 创建表情
----
-data XGCreateForm = CreateForm { name :: Text
-                               , link :: Text
-                               , group :: Int
-                               } deriving (Generic)
+-- | 表情相关表单定义。
+data XGEmojiForm = EmojiForm { name :: Text
+                             , link :: Text
+                             , groupId :: Int
+                             }
 
-instance FromJSON XGCreateForm
+instance FromJSON XGEmojiForm where
+    parseJSON = withObject "EmojiForm" $ \o -> EmojiForm <$> o .: "名字"
+                                               <*> o .: "链接"
+                                               <*> o .: "分组id"
 
-type CreateAPI = ReqBody '[JSON] XGCreateForm :> Post '[JSON] XGBNQK
+type CreateAPI = "创建"
+                 :> ReqBody '[JSON] XGEmojiForm
+                 :> Post '[JSON] XGEmoji
 
-createsql = [sql| insert into "bnqk"
-                  ("mkzi", "lmjp", "ffzu_id", "yshu_id")
-                  values (?, ?, ?, ?)
-                  returning * |]
+c_emoji = [sql| insert into "表情"
+                ("名字", "链接", "分组id")
+                values (?, ?, ?)
+                returning * |]
 
-createAPI :: XGUser -> XGCreateForm -> XGApp XGBNQK
-createAPI User{..} CreateForm{..} = do
-    queryOne createsql (name, link, group, userId) >>= throwNil
+-- | 新建表情。
+createAPI :: XGUser -> XGEmojiForm -> XGApp XGEmoji
+createAPI _ EmojiForm{..} = queryOne c_emoji (name, link, groupId) >>= throwNil
