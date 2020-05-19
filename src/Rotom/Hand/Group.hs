@@ -53,7 +53,8 @@ createAPI User{..} FormBody{..} = queryOne q (groupName, userId) >>= GroupA.thro
 -- | 重命名分组，即更新
 type UpdateAPI = Capture "id" Int
                  :> "更新"
-                 :> ReqBody '[JSON] XGFormBody :> Patch '[JSON] XGGroup
+                 :> ReqBody '[JSON] XGFormBody
+                 :> Patch '[JSON] XGGroup
 
 -- | 更新分组。
 updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup

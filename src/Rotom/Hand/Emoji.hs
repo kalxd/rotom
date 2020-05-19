@@ -12,22 +12,20 @@ module Rotom.Hand.Emoji ( API
 import Servant
 import Rotom.Type
 import Rotom.Type.Emoji
+import qualified Rotom.Action.Emoji as EmojiA
 
 import Data.Text (Text)
 import Data.Aeson (FromJSON(..), (.:), withObject)
 
-type API = "表情" :> CreateAPI
+type API = "表情" :> (CreateAPI :<|> UpdateAPI)
 
 api :: XGUser -> ServerT API XGApp
-api user = createAPI user
-
-throwNil :: Maybe a -> XGApp a
-throwNil = liftMaybe NoEmojiE
+api user = createAPI user :<|> updateAPI user
 
 -- | 表情相关表单定义。
-data XGEmojiForm = EmojiForm { name :: Text
-                             , link :: Text
-                             , groupId :: Int
+data XGEmojiForm = EmojiForm { formName :: Text
+                             , formLink :: Text
+                             , formGroupId :: Int
                              }
 
 instance FromJSON XGEmojiForm where
@@ -41,8 +39,23 @@ type CreateAPI = "创建"
 
 -- | 新建表情。
 createAPI :: XGUser -> XGEmojiForm -> XGApp XGEmoji
-createAPI _ EmojiForm{..} = queryOne q (name, link, groupId) >>= throwNil
+createAPI _ EmojiForm{..} = queryOne q (formName, formLink, formGroupId) >>= EmojiA.throwNil
     where q = [sql| insert into "表情"
                     ("名字", "链接", "分组id")
                     values (?, ?, ?)
                     returning * |]
+
+type UpdateAPI = Capture "id" Int
+                 :> "更新"
+                 :> ReqBody '[JSON] XGEmojiForm
+                 :> Patch '[JSON] XGEmoji
+
+-- | 更新表情。
+updateAPI :: XGUser -> Int -> XGEmojiForm -> XGApp XGEmoji
+updateAPI user id EmojiForm{..} = do
+    EmojiA.guard user id
+    let q = [sql| update "表情"
+                  set "名字" = ?, "链接" = ?, "分组id" = ?
+                  where id = ?
+                  returning * |]
+    queryOne q (formName, formLink, formGroupId, id) >>= EmojiA.throwNil
