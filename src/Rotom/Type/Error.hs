@@ -1,10 +1,8 @@
-{-# LANGUAGE OverloadedStrings #-}
-{-# LANGUAGE FlexibleInstances #-}
-
 -- | 全局错误定义
 -- 虽然自定义了新错误类型，但XGApp只接受ServerError，
 -- 所以最后只保留下ServerError，catchE无法正确catch到具体类型。
-
+{-# LANGUAGE OverloadedStrings #-}
+{-# LANGUAGE FlexibleInstances #-}
 module Rotom.Type.Error ( XGError(..)
                         , ToXGError(..)
                         ) where
@@ -30,7 +28,7 @@ customErrorCode AuthOwnE = 202
 customErrorCode _ = 1
 
 -- | 转化成servant对应错误，即http对应状态码。
-toHttpError :: XGError -> ServerError
+toHttpError :: XGError -> ServantErr
 toHttpError NoUserE = err404
 toHttpError NoGroupE = err404
 toHttpError NoEmojiE = err404
@@ -54,7 +52,7 @@ newtype XGErrorInfo = ErrorBox (XGError, T.Text)
 class ToXGError a where
     toError :: a -> XGErrorInfo
 
-    toServantError :: a -> ServerError
+    toServantError :: a -> ServantErr
     toServantError a = let ErrorBox (e, msg) = toError a
                            code = customErrorCode e
                            err = toHttpError e
