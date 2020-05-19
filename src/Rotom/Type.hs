@@ -14,6 +14,8 @@ import Rotom.Type.User (XGUser(..))
 
 import Control.Monad ((>=>))
 import Control.Monad.IO.Class (liftIO)
+import Control.Monad.Trans.Class (lift)
+import Control.Monad.Trans.Except (catchE)
 import Data.Maybe (listToMaybe, isNothing)
 import Data.Int (Int64)
 
@@ -57,3 +59,10 @@ executeMany :: PG.ToRow q => PG.Query -> [q] -> XGApp Int64
 executeMany sql q = do
     conn <- askConnect
     liftIO $ PG.executeMany conn sql q
+
+-- | 开启事务，`PG.withTransaction`再封装。
+-- | 低层次封装，毕竟要直接操作IO。
+transaction :: (PG.Connection -> IO a) -> XGApp a
+transaction action = do
+    conn <- askConnect
+    liftIO $ PG.withTransaction conn $ action conn

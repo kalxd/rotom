@@ -15,6 +15,7 @@ import qualified  Rotom.Action.Group as GroupA
 
 import qualified Data.Text as T
 import Data.Aeson (FromJSON(..), (.:), withObject)
+import qualified Database.PostgreSQL.Simple as PG
 
 -- | 分组API
 type API = "分组" :> (AllAPI :<|> CreateAPI :<|> UpdateAPI)
@@ -64,3 +65,13 @@ updateAPI user id FormBody{..} = do
                   returning * |]
     GroupA.guardAll id user
     queryOne q (groupName, id) >>= GroupA.throwNil
+
+destroyAll :: XGUser -> Int -> XGApp ()
+destroyAll user id = do
+    GroupA.guardAll id user
+    transaction $ \conn -> do
+        let q1 = [sql| delete from "表情" where "分组id" = ? |]
+        let q2 = [sql| delete from "分组" where id = ? |]
+        PG.execute conn q1 [id]
+        PG.execute conn q2 [id]
+    pure ()
