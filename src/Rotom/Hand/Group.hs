@@ -11,6 +11,7 @@ module Rotom.Hand.Group ( API
 import Servant
 import Rotom.Type
 import Rotom.Type.Group
+import Rotom.Type.Emoji
 import qualified  Rotom.Action.Group as GroupA
 
 import qualified Data.Text as T
@@ -23,7 +24,8 @@ type API = "分组"
                :<|> CreateAPI
                :<|> UpdateAPI
                :<|> DestroyAllAPI
-               :<|> DestroySoftAPI)
+               :<|> DestroySoftAPI
+               :<|> EmojiAPI)
 
 api :: XGUser -> ServerT API XGApp
 api user = allAPI user
@@ -31,6 +33,7 @@ api user = allAPI user
            :<|> updateAPI user
            :<|> destroyAllAPI user
            :<|> destroySoftAPI user
+           :<|> emojiAPI user
 
 type AllAPI = "列表" :> Get '[JSON] [XGGroup]
 
@@ -109,3 +112,18 @@ destroySoftAPI user id MoveForm{..} = do
         PG.execute conn q1 (moveId, id)
         PG.execute conn q2 [id]
     pure ()
+
+type EmojiAPI = Capture "id" Int
+                :> "表情列表"
+                :> Get '[JSON] [XGEmoji]
+
+-- | 一组分组下的表情。
+emojiAPI :: XGUser -> Int -> XGApp [XGEmoji]
+emojiAPI user id = do
+    GroupA.guardAll id user
+    let q = [sql| select
+                  "id", "名字", "链接", "创建日期"
+                  from "表情"
+                  where "分组id" = ?
+                  order by id desc |]
+    query q [id]
