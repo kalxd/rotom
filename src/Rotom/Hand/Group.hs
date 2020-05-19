@@ -18,10 +18,17 @@ import Data.Aeson (FromJSON(..), (.:), withObject)
 import qualified Database.PostgreSQL.Simple as PG
 
 -- | 分组API
-type API = "分组" :> (AllAPI :<|> CreateAPI :<|> UpdateAPI)
+type API = "分组"
+           :> (AllAPI
+               :<|> CreateAPI
+               :<|> UpdateAPI
+               :<|> DestroyAllAPI)
 
 api :: XGUser -> ServerT API XGApp
-api user = allAPI user :<|> createAPI user :<|> updateAPI user
+api user = allAPI user
+           :<|> createAPI user
+           :<|> updateAPI user
+           :<|> destroyAllAPI user
 
 type AllAPI = "列表" :> Get '[JSON] [XGGroup]
 
@@ -66,8 +73,13 @@ updateAPI user id FormBody{..} = do
     GroupA.guardAll id user
     queryOne q (groupName, id) >>= GroupA.throwNil
 
-destroyAll :: XGUser -> Int -> XGApp ()
-destroyAll user id = do
+type DestroyAllAPI = Capture "id" Int
+                     :> "全部清除"
+                     :> Delete '[JSON] ()
+
+-- | 硬性删除分组。
+destroyAllAPI :: XGUser -> Int -> XGApp ()
+destroyAllAPI user id = do
     GroupA.guardAll id user
     transaction $ \conn -> do
         let q1 = [sql| delete from "表情" where "分组id" = ? |]
