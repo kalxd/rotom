@@ -22,7 +22,7 @@ data XGEmoji = Emoji { emojiId :: Int
 instance ToJSON XGEmoji where
     toJSON Emoji{..} = object [ "id" .= emojiId
                               , "名字" .= emojiName
-                              , "链扫" .= emojiLink
+                              , "链接" .= emojiLink
                               , "分组id" .= emojiGroupId
                               , "创建日期" .= emojiCreateAt
                               ]
