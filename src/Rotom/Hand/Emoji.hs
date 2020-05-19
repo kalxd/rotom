@@ -39,11 +39,10 @@ type CreateAPI = "创建"
                  :> ReqBody '[JSON] XGEmojiForm
                  :> Post '[JSON] XGEmoji
 
-c_emoji = [sql| insert into "表情"
-                ("名字", "链接", "分组id")
-                values (?, ?, ?)
-                returning * |]
-
 -- | 新建表情。
 createAPI :: XGUser -> XGEmojiForm -> XGApp XGEmoji
-createAPI _ EmojiForm{..} = queryOne c_emoji (name, link, groupId) >>= throwNil
+createAPI _ EmojiForm{..} = queryOne q (name, link, groupId) >>= throwNil
+    where q = [sql| insert into "表情"
+                    ("名字", "链接", "分组id")
+                    values (?, ?, ?)
+                    returning * |]
