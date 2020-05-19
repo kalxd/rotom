@@ -22,13 +22,15 @@ type API = "分组"
            :> (AllAPI
                :<|> CreateAPI
                :<|> UpdateAPI
-               :<|> DestroyAllAPI)
+               :<|> DestroyAllAPI
+               :<|> DestroySoftAPI)
 
 api :: XGUser -> ServerT API XGApp
 api user = allAPI user
            :<|> createAPI user
            :<|> updateAPI user
            :<|> destroyAllAPI user
+           :<|> destroySoftAPI user
 
 type AllAPI = "列表" :> Get '[JSON] [XGGroup]
 
@@ -85,5 +87,25 @@ destroyAllAPI user id = do
         let q1 = [sql| delete from "表情" where "分组id" = ? |]
         let q2 = [sql| delete from "分组" where id = ? |]
         PG.execute conn q1 [id]
+        PG.execute conn q2 [id]
+    pure ()
+
+data XGMoveForm = MoveForm { moveId :: Int }
+
+instance FromJSON XGMoveForm where
+    parseJSON = withObject "MoveForm" $ \o -> o .: "下个分组id"
+
+type DestroySoftAPI = Capture "id" Int
+                      :> ReqBody '[JSON] XGMoveForm
+                      :> Patch '[JSON] ()
+
+-- | 软性删除分组。
+destroySoftAPI :: XGUser -> Int -> XGMoveForm -> XGApp ()
+destroySoftAPI user id MoveForm{..} = do
+    const <$> GroupA.guardAll id user <*> GroupA.guardAll moveId user
+    transaction $ \conn -> do
+        let q1 = [sql| update "表情" set "分组id" = ? where id = ? |]
+        let q2 = [sql| delete from "分组" where id = ? |]
+        PG.execute conn q1 (moveId, id)
         PG.execute conn q2 [id]
     pure ()
