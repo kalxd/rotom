@@ -122,7 +122,7 @@ emojiAPI :: XGUser -> Int -> XGApp [XGEmoji]
 emojiAPI user id = do
     GroupA.guardAll id user
     let q = [sql| select
-                  "id", "名字", "链接", "创建日期"
+                  "id", "名字", "链接", "分组id", "创建日期"
                   from "表情"
                   where "分组id" = ?
                   order by id desc |]
