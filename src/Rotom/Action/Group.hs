@@ -25,5 +25,5 @@ guardOwner User{..} group@Group{..} = if userId == groupUserId
                                       else throw AuthOwnE
 
 -- | 合并所有检查要素。
-guardAll :: Int -> XGUser -> XGApp XGGroup
-guardAll id user = guardGroup id >>= guardOwner user
+guard :: XGUser -> Int -> XGApp XGGroup
+guard user id  = guardGroup id >>= guardOwner user

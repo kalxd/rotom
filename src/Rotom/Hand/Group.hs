@@ -75,7 +75,7 @@ updateAPI user id FormBody{..} = do
     let q = [sql| update "分组"
                   set "名字" = ? where "id" = ?
                   returning * |]
-    GroupA.guardAll id user
+    GroupA.guard user id
     queryOne q (groupName, id) >>= GroupA.throwNil
 
 type DestroyAllAPI = Capture "id" Int
@@ -85,7 +85,7 @@ type DestroyAllAPI = Capture "id" Int
 -- | 硬性删除分组。
 destroyAllAPI :: XGUser -> Int -> XGApp ()
 destroyAllAPI user id = do
-    GroupA.guardAll id user
+    GroupA.guard user id
     transaction $ \conn -> do
         let q1 = [sql| delete from "表情" where "分组id" = ? |]
         let q2 = [sql| delete from "分组" where id = ? |]
@@ -105,7 +105,7 @@ type DestroySoftAPI = Capture "id" Int
 -- | 软性删除分组。
 destroySoftAPI :: XGUser -> Int -> XGMoveForm -> XGApp ()
 destroySoftAPI user id MoveForm{..} = do
-    const <$> GroupA.guardAll id user <*> GroupA.guardAll moveId user
+    const <$> GroupA.guard user id <*> GroupA.guard user moveId
     transaction $ \conn -> do
         let q1 = [sql| update "表情" set "分组id" = ? where id = ? |]
         let q2 = [sql| delete from "分组" where id = ? |]
@@ -120,7 +120,7 @@ type EmojiAPI = Capture "id" Int
 -- | 一组分组下的表情。
 emojiAPI :: XGUser -> Int -> XGApp [XGEmoji]
 emojiAPI user id = do
-    GroupA.guardAll id user
+    GroupA.guard user id
     let q = [sql| select
                   "id", "名字", "链接", "分组id", "创建日期"
                   from "表情"
