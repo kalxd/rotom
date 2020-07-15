@@ -16,6 +16,7 @@ data XGGroup = Group { groupId :: Int
                      , groupName :: T.Text
                      , groupUserId :: Int
                      , groupCreateAt :: ZonedTime
+                     , groupCount :: Int
                      } deriving (FromRow, Generic)
 
 instance ToJSON XGGroup where
@@ -23,4 +24,5 @@ instance ToJSON XGGroup where
                               , "名字" .= groupName
                               , "用户id" .= groupUserId
                               , "创建日期" .= groupCreateAt
+                              , "数量" .= groupCount
                               ]

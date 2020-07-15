@@ -47,7 +47,7 @@ instance FromJSON XGFormBody where
 allAPI :: XGUser -> XGApp [XGGroup]
 allAPI User{..} = query q [userId]
     where q = [sql| select
-                    "id", "名字", "用户id", "创建日期"
+                    "id", "名字", "用户id", "创建日期", (select count(*) from 表情 where 表情.分组id = 分组.id) as "数量"
                     from "分组"
                     where "用户id" = ? |]
 
@@ -61,7 +61,7 @@ createAPI User{..} FormBody{..} = queryOne q (groupName, userId) >>= GroupA.thro
     where q = [sql| insert into "分组"
                     ("名字", "用户id")
                     values (?, ?)
-                    returning * |]
+                    returning *, 0 |]
 
 -- | 重命名分组，即更新
 type UpdateAPI = Capture "id" Int
@@ -74,7 +74,7 @@ updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
 updateAPI user id FormBody{..} = do
     let q = [sql| update "分组"
                   set "名字" = ? where "id" = ?
-                  returning * |]
+                  returning *, (select count(*) from 表情 where 表情.分组id = 分组.id) |]
     GroupA.guard user id
     queryOne q (groupName, id) >>= GroupA.throwNil
 
