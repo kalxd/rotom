@@ -6,6 +6,8 @@
 
 module Rotom.Type.Group where
 
+import Data.Int (Int64)
+
 import qualified Data.Text as T
 import GHC.Generics
 import Data.Aeson (ToJSON(..), (.=), object)
@@ -16,7 +18,7 @@ data XGGroup = Group { groupId :: Int
                      , groupName :: T.Text
                      , groupUserId :: Int
                      , groupCreateAt :: ZonedTime
-                     , groupCount :: Int
+                     , groupCount :: Int64
                      } deriving (FromRow, Generic)
 
 instance ToJSON XGGroup where
