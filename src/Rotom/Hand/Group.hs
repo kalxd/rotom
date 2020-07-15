@@ -47,7 +47,7 @@ instance FromJSON XGFormBody where
 allAPI :: XGUser -> XGApp [XGGroup]
 allAPI User{..} = query q [userId]
     where q = [sql| select
-                    "id", "名字", "用户id", "创建日期", (select count(*) from 表情 where 表情.分组id = 分组.id) as "数量"
+                    "id", "名字", "用户id", "创建日期", (select count(*) from "表情" where "表情"."分组id" = "分组".id) as "数量"
                     from "分组"
                     where "用户id" = ? |]
 
@@ -74,7 +74,7 @@ updateAPI :: XGUser -> Int -> XGFormBody -> XGApp XGGroup
 updateAPI user id FormBody{..} = do
     let q = [sql| update "分组"
                   set "名字" = ? where "id" = ?
-                  returning *, (select count(*) from 表情 where 表情.分组id = 分组.id) |]
+                  returning *, (select count(*) from "表情" where "表情"."分组id" = "分组.id") |]
     GroupA.guard user id
     queryOne q (groupName, id) >>= GroupA.throwNil
 
@@ -88,7 +88,7 @@ destroyAllAPI user id = do
     GroupA.guard user id
     transaction $ \conn -> do
         let q1 = [sql| delete from "表情" where "分组id" = ? |]
-        let q2 = [sql| delete from "分组" where id = ? |]
+        let q2 = [sql| delete from "分组" where "id" = ? |]
         PG.execute conn q1 [id]
         PG.execute conn q2 [id]
     pure ()
