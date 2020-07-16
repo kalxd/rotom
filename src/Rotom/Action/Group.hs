@@ -14,7 +14,7 @@ throwNil = liftMaybe NoGroupE
 guardGroup :: Int -> XGApp XGGroup
 guardGroup id = queryOne q [id] >>= throwNil
     where q = [sql| select
-                    "id", "名字", "用户id", "创建日期"
+                    "id", "名字", "用户id", "创建日期", (select count(*) from "表情" where "表情"."分组id" = "分组".id) as "数量"
                     from "分组"
                     where id = ? |]
 
