@@ -1,6 +1,5 @@
 -- | 常用逻辑都写在这里。
 {-# LANGUAGE QuasiQuotes #-}
-{-# LANGUAGE RecordWildCards #-}
 module Rotom.Action.Group where
 
 import Rotom.Type
@@ -20,9 +19,9 @@ guardGroup id = queryOne q [id] >>= throwNil
 
 -- | 确保用户只能操作自己分组内的表情。
 guardOwner :: XGUser -> XGGroup -> XGApp XGGroup
-guardOwner User{..} group@Group{..} = if userId == groupUserId
-                                      then pure group
-                                      else throw AuthOwnE
+guardOwner user group
+    | userId user == groupUserId group = pure group
+    | otherwise = throw AuthOwnE
 
 -- | 合并所有检查要素。
 guard :: XGUser -> Int -> XGApp XGGroup
